@@ -7,51 +7,56 @@ class Validator
     new(puzzle_string).validate
   end
 
- def validate
- return valid or invalid
-
- private 
-
- def valid
-  begin
-  (valid_rows && valid_columns) = true
- raise "Sudoku is valid"
- puts a.to_s
-rescue Exception => a
-else if valid_rows @puzzle_string contains 0
-  check valid_group where  
-  puts 'Sudoku is valid but incomplete'
- end
- end
- end
- 
- def invalid
-  (valid_rows && valid_columns) = false
- end
-
- def valid_rows
-  @puzzle_string.each_line.all do |row|
-    valid_group(row)
+  def validate
+    result =
+      if valid?
+        'Sudoku is valid.'
+      elsif incomplete?
+        'Sudoku is valid but incomplete.'
+      else
+        'Sudoku is invalid.'
+      end
+    puts result
+    result
   end
-end
 
+  private
 
- def valid_columns
-(1...9).all? do |col|
-  column = @puzzle_string.each_line.map { |row| row[col] }
-  valid_group?(column.join)
-end
-end
+  # Check if the puzzle is valid by validating rows and columns
+  def valid?
+    rows = valid_rows?
+    columns = valid_columns?
+  
+    puts "Rows: #{rows}"
+    puts "Columns: #{columns}"
+  
+    rows && columns
+  end
 
-def valid_group(group)
-  group.chars.all? {|ch| ch.between?('1', '9')} && group.chars.uniq.size = group.size
-end
-def valid_subgrids?
-  subgrid_size = Math.sqrt(@puzzle.size).to_i
-  (0...@puzzle.size).step(subgrid_size).all? do |start_row|
-    (0...@puzzle.size).step(subgrid_size).all? do |start_col|
-      subgrid = @puzzle[start_row, subgrid_size].map { |row| row[start_col, subgrid_size] }.flatten
-      !contains_duplicates?(subgrid)
+  # Check if the puzzle is incomplete
+  def incomplete?
+    @puzzle_string.include?('0') && valid_rows? && valid_columns?
+  end
+
+  # Check if all rows are valid
+  def valid_rows?
+    result = @puzzle_string.each_line.all? { |row| !contains_duplicates?(row.scan(/\d+/).map(&:to_i)) }
+    result
+  end  
+
+  # Check if all columns are valid
+  def valid_columns?
+    result = (0...9).all? do |col|
+      column = @puzzle_string.each_line.map { |row| row.scan(/\d+/)[col].to_i }
+      duplicates = contains_duplicates?(column)
+      puts "Column #{col}: #{duplicates ? 'Invalid' : 'Valid'} #{column}"
+      !duplicates
     end
+    result
+  end  
+
+  # Check if an array contains duplicates
+  def contains_duplicates?(array)
+    array.compact.uniq.size != array.compact.size
   end
 end
