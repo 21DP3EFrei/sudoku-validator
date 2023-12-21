@@ -36,10 +36,8 @@ describe 'End-to-end test' do
       it 'returns a string saying so' do
         result = Validator.validate(File.read(fixture))
 
-        expect(result).to(
-          eq('Sudoku is invalid.'),
-          "Expected #{fixture} to be invalid but it wasn't."
-        )
+        expect(result).to(eq('Sudoku is invalid.'),
+        "Expected #{fixture} to be invalid but it wasn't.")
       end
     end
   end
