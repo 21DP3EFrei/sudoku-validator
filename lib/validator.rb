@@ -41,8 +41,7 @@ class Validator
     @puzzle_string.include?('0')
   end
 
-  # Check if all rows are valid
- # Check if all rows are valid
+# Check if all rows are valid
 def valid_rows?
   result = @puzzle_string.each_line.with_index.all? do |row, index|
     row_values = row.scan(/\d+/).map(&:to_i)
@@ -80,23 +79,28 @@ def valid_columns?
   result
 end
 
-  # Check if all subgroups are valid
-  def valid_subgroups?
-    result = (0..6).step(3).all? do |row|
-      (0..6).step(3).all? do |col|
-        subgroup = (0..2).flat_map do |i|
-          (0..2).map { |j| @puzzle_string[row + i][col + j].to_i }
+# Check if all subgroups are valid
+def valid_subgroups?
+  result = (0..6).step(3).all? do |row|
+    (0..6).step(3).all? do |col|
+      subgroup = []
+      (0..2).each do |i|
+        (0..2).each do |j|
+          # Adjust indices based on the current row and column
+          cell_value = @puzzle_string[(row + i) * 9 + (col + j)].to_i
+          subgroup << cell_value unless cell_value.zero?
         end
-  
-        non_zero_values = subgroup.reject { |value| value.zero? }
-        duplicates = non_zero_values.size != non_zero_values.uniq.size
-  
-        puts "Subgroup: Non-zero values: #{non_zero_values}, Duplicates: #{duplicates ? 'Invalid' : 'Valid'}, Subgroup: #{subgroup}"
-  
-        !duplicates
       end
+
+      non_zero_values = subgroup.uniq
+      duplicates = non_zero_values.size != subgroup.size
+
+      puts "Subgroup: Non-zero values: #{non_zero_values}, Duplicates: #{duplicates ? 'Invalid' : 'Valid'}, Subgroup: #{subgroup}"
+
+      !duplicates
     end
-    result
   end
-  
+
+  result
+end
 end
