@@ -81,24 +81,36 @@ end
 
 # Check if all subgroups are valid
 def valid_subgroups?
-  result = (0..6).step(3).all? do |row|
-    (0..6).step(3).all? do |col|
+  subgroups = []
+
+  # Divide the puzzle into 3x3 subgroups
+  (0..2).each do |row_offset|
+    (0..2).each do |col_offset|
       subgroup = []
       (0..2).each do |i|
         (0..2).each do |j|
-          # Adjust indices based on the current row and column
-          cell_value = @puzzle_string[(row + i) * 9 + (col + j)].to_i
-          subgroup << cell_value unless cell_value.zero?
+          actual_row = row_offset * 3 + i
+          row = actual_row + (actual_row >= 3 ? 1 : 0)
+          col = col_offset * 3 + j
+          value = @puzzle_string.each_line.map { |line| line.scan(/\d/)[col].to_i }[row]
+          subgroup << value unless value.zero?
         end
       end
-
-      non_zero_values = subgroup.uniq
-      duplicates = non_zero_values.size != subgroup.size
-
-      puts "Subgroup: Non-zero values: #{non_zero_values}, Duplicates: #{duplicates ? 'Invalid' : 'Valid'}, Subgroup: #{subgroup}"
-
-      !duplicates
+      subgroups << subgroup
     end
+  end
+
+  result = subgroups.all? do |subgroup|
+    non_zero_values = subgroup.reject { |value| value.zero? }
+
+    invalid_numbers = non_zero_values.select { |value| value < 1 || value > 9 }
+
+    duplicates = non_zero_values.size != non_zero_values.uniq.size
+    contains_all_numbers = (1..9).all? { |num| subgroup.count(num) <= 1 }
+
+    puts "Subgroup: Non-zero values: #{non_zero_values}, Invalid Numbers: #{invalid_numbers}, Duplicates: #{duplicates ? 'Invalid' : 'Valid'}, Contains all numbers: #{contains_all_numbers} #{subgroup}"
+
+    (!duplicates || non_zero_values.empty?) && invalid_numbers.empty? && contains_all_numbers
   end
 
   result
